@@ -24,6 +24,17 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+/**
+ * Service responsible for calculating and aggregating reward points
+ * earned by customers based on their transaction history.
+ *
+ * <p>Points are awarded as follows:
+ * <ul>
+ *   <li>No points for purchases at or below $50</li>
+ *   <li>1 point per dollar spent between $50 and $100</li>
+ *   <li>2 points per dollar spent above $100 (plus the 1 pt/dollar tier)</li>
+ * </ul>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -35,6 +46,12 @@ public class RewardsService {
     private final CustomerRepository customerRepository;
     private final TransactionRepository transactionRepository;
 
+    /**
+     * Calculates the reward points earned for a single transaction amount.
+     *
+     * @param amount the transaction amount; {@code null} is treated as zero
+     * @return the number of points earned
+     */
     public int calculatePoints(BigDecimal amount) {
         if (amount == null || amount.compareTo(LOWER_THRESHOLD) <= 0) {
             return 0;
@@ -59,8 +76,18 @@ public class RewardsService {
         return points;
     }
 
-    // Rewards for a Single Customer
-
+    /**
+     * Returns reward points earned by a specific customer within a date range,
+     * broken down by month.
+     *
+     * @param customerId the ID of the customer
+     * @param startDate  the start of the period (inclusive)
+     * @param endDate    the end of the period (inclusive)
+     * @return a {@link CustomerRewardDTO} with the monthly breakdown and total points
+     * @throws CustomerNotFoundException    if the customer ID does not exist
+     * @throws NoTransactionsFoundException if there are no transactions in the given range
+     * @throws InvalidDateRangeException    if the date range is null or start is after end
+     */
     public CustomerRewardDTO getRewardsForCustomer(Long customerId, LocalDate startDate, LocalDate endDate) {
         validateDateRange(startDate, endDate);
 
@@ -79,8 +106,16 @@ public class RewardsService {
         return buildCustomerRewardDTO(customer, transactions);
     }
 
-    // Rewards for ALL Customers
-
+    /**
+     * Returns reward points for all customers in the system within a date range.
+     * Customers with no transactions in the period will have zero points.
+     *
+     * @param startDate the start of the period (inclusive)
+     * @param endDate   the end of the period (inclusive)
+     * @return a {@link RewardsReportDTO} containing one entry per customer
+     * @throws NoTransactionsFoundException if no customers exist in the system
+     * @throws InvalidDateRangeException    if the date range is null or start is after end
+     */
     public RewardsReportDTO getRewardsForAllCustomers(LocalDate startDate, LocalDate endDate) {
         validateDateRange(startDate, endDate);
 
@@ -105,7 +140,10 @@ public class RewardsService {
                 .build();
     }
 
-
+    /**
+     * Builds a {@link CustomerRewardDTO} by grouping the given transactions by month
+     * and computing points for each.
+     */
     private CustomerRewardDTO buildCustomerRewardDTO(Customer customer, List<Transaction> transactions) {
         // Group transactions by year-month
         Map<String, List<Transaction>> byMonth = transactions.stream()
@@ -153,6 +191,7 @@ public class RewardsService {
                 .build();
     }
 
+    /** Converts a {@link Transaction} entity to its DTO representation, including points earned. */
     private TransactionDTO toTransactionDTO(Transaction t) {
         return TransactionDTO.builder()
                 .id(t.getId())
@@ -163,7 +202,11 @@ public class RewardsService {
                 .build();
     }
 
-
+    /**
+     * Validates that both dates are non-null and that start is not after end.
+     *
+     * @throws InvalidDateRangeException if validation fails
+     */
     private void validateDateRange(LocalDate startDate, LocalDate endDate) {
         if (startDate == null || endDate == null) {
             throw new InvalidDateRangeException("Start date and end date must not be null.");

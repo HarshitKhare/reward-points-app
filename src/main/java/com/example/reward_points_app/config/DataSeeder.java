@@ -13,6 +13,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Seeds the in-memory H2 database with sample customers and transactions on startup.
+ * This runs automatically via {@link CommandLineRunner} and is intended for demo/testing purposes only.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -113,6 +117,7 @@ public class DataSeeder implements CommandLineRunner {
         log.info("Seeded {} customers and {} transactions into the DB.", 5, transactions.size());
     }
 
+    /** Helper to build a {@link Transaction} without repeating boilerplate. */
     private Transaction txn(Customer customer, String amount, LocalDate date, String desc) {
         return Transaction.builder()
                 .customer(customer)

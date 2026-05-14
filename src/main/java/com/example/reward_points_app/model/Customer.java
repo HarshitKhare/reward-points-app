@@ -6,6 +6,9 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entity representing a customer in the rewards system.
+ */
 @Entity
 @Table(name = "customers")
 @Getter
@@ -22,6 +25,7 @@ public class Customer {
     @Column(nullable = false)
     private String name;
 
+    /** Must be unique across all customers. */
     @Column(nullable = false, unique = true)
     private String email;
 

@@ -6,6 +6,9 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Entity representing a single purchase transaction made by a customer.
+ */
 @Entity
 @Table(name = "transactions")
 @Getter
@@ -23,6 +26,7 @@ public class Transaction {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
+    /** The purchase amount in USD. Used to compute reward points. */
     @Column(nullable = false)
     private BigDecimal amount;
 

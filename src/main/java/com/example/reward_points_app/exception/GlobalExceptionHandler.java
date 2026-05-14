@@ -12,6 +12,10 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 
+/**
+ * Centralised exception handler for all REST controllers.
+ * Converts application exceptions into a consistent {@link ErrorResponseDTO} structure.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -61,6 +65,7 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred: " + ex.getMessage(), request);
     }
 
+    /** Builds a standard error response with the given HTTP status and message details. */
     private ResponseEntity<ErrorResponseDTO> buildError(
             HttpStatus status, String error, String message, HttpServletRequest request) {
         return ResponseEntity.status(status).body(

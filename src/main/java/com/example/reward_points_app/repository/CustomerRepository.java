@@ -6,7 +6,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * Repository for {@link Customer} entities.
+ */
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
+
+    /** Looks up a customer by their unique email address. */
     Optional<Customer> findByEmail(String email);
 }
